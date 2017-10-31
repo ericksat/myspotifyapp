@@ -5,7 +5,7 @@ const querystring = require('querystring')
 
 const client_id = 'eca64d2d78294597b599f2dff2cf9588'; // Your client id
 const client_secret = '5637221e21e0453d895fef37f09cc18d'; // Your secret
-const redirect_uri = 'http://localhost:3000/return'; // Your redirect uri
+const redirect_uri = process.env.return_uri || 'http://localhost:3000/return'; // Your redirect uri
 
 const readTokens = () => {
   // Check if we have an access token
