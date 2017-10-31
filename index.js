@@ -7,6 +7,8 @@
 const {redirector, returny, hasToken, useRefreshToken} = require("./app/authenticator.js")
 const express = require('express')
 
+const PORT = process.env.PORT || 3000;
+
 var app = express();
 
 app.use(express.static(__dirname + '/public'))
@@ -20,6 +22,6 @@ app.get('/login', redirector);
 app.get('/return', returny);
 app.get('/refresh_token', useRefreshToken);
 
-var server = app.listen(3000, () => {
-    console.log("Started server on port 3000")
+var server = app.listen(PORT, () => {
+    console.log("Started server on port", PORT)
 });
