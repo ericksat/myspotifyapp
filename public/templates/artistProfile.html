@@ -1,0 +1,13 @@
+<div class="profile">
+    <img alt="Profile" class="profile-img" src={{image}} />
+    <div class="profile-info">
+        <div class="profile-name">{{name}}</div>
+        <div class="profile-followers">Followers: {{followers}}</div>
+        <div class="profile-popularity">Popularity: {{popularity}}</div>
+        <ul class="profile-genres">
+        {{#genres}}
+            <li>{{.}}</li>
+        {{/genres}}
+        </ul>
+    </div>
+</div>

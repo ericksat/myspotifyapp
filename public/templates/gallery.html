@@ -1,0 +1,14 @@
+<div class="gallery">
+    {{#tracks}}
+    <div class="track">
+        <img src={{image}} class="track-img" alt="Track Image" />
+        <div class="track-play" data-url={{previewUrl}} data-id={{id}}>
+            <div class="track-play-inner" id="inner_{{id}}">
+                <span data-role="play">&#9654;</span>
+                <span data-role="pause" class="hidden">&#10074;&#10074;</span>
+            </div>
+        </div>
+        <p class="track-text">{{name}}</p>
+    </div>
+    {{/tracks}}
+</div>
