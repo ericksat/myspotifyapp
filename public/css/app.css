@@ -1,21 +1,37 @@
+body {
+    background-color: #2e3131;
+    color: white;
+}
+
+div.jumbotron {
+    background-color: #3e3d3d;
+}
+
+div.jumbotron > div.container {
+    position: relative;
+}
+
 /* User Profile */
 
 .user-box {
     display: flex;
+    position: absolute;
+    top: 2em;
+    right: 0;
 }
 
 .user-image img {
-    height: 82px;
-    width: 82px;
+    height: 64px;
+    width: 64px;
     border: 3px solid white;
-    border-radius: 32px;
+    border-radius: 24px;
     object-fit: cover;
 }
 
 .user-info {
     padding-left: 12px;
-    display: flex;
-    flex-direction: column;
+    line-height: 64px;
+    font-size: 1.25em;
 }
 
 span.dip {
@@ -34,10 +50,11 @@ span.dop {
 #searchForm {
     display: none;
     margin: 12px 0;
+    text-align: center;
 }
 
 #searchBar {
-    width: 20em;
+    width: 24em;
 }
 
 #volumeGroup {
@@ -50,6 +67,8 @@ span.dop {
     position: absolute;
     top: -1.9em;
     left: 46%;
+    font-weight: bold;
+    color: white;
 }
 
 /* Artist Profile */
@@ -72,7 +91,6 @@ span.dop {
     text-align: left;
     display: flex;
     flex-direction: column;
-    justify-content: center;
 }
 
 .profile-name {
@@ -87,7 +105,33 @@ span.dop {
     text-align: left;
 }
 
+/* Album Display */
+
+.album {
+    display: flex;
+    justify-content:center
+}
+
+.album-img {
+    width: 192px;
+    height: 192px;
+    border: 3px solid white;
+    border-radius: 64px;
+    object-fit: cover;
+}
+
+.album-info {
+    margin-left: 24px;
+    text-align: left;
+    display: flex;
+    flex-direction:column
+}
+
 /* Gallery */
+
+.gallery {
+    text-align: center;
+}
 
 .track {
     width: 220px;
@@ -113,12 +157,16 @@ span.dop {
     color: white;
     opacity: 0.75;
     width: 214px;
+    height: 40px;
     margin-left: 3px;
     text-align: center;
     position: absolute;
     padding: 10px;
-    bottom: 0;
+    bottom: -7px;
     z-index: 3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .track-play {

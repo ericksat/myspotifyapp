@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Spotifier</title>
+    <title>Spotifind</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/app.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
@@ -10,8 +10,14 @@
 </head>
 <body>
 
-<div class="container" style='background-color: #eaeaea'>
-    <h1>Spotifier</h1>
+<div class="jumbotron">
+    <div class="container">
+        <h1>Spotifind</h1>
+        <p>A Spotifier&trade; API demonstration.</p>
+    </div>
+</div>
+
+<div class="container">
     <div id="response">
 
     </div>
@@ -23,13 +29,13 @@
 
     <form class="form-inline" role="form" id="searchForm">
         <div class="form-group">
-            <input type="search" name="" id="searchBar" class="form-control" value="Michael Jackson" required="required" placeholder="Search...">
+            <input type="search" name="" id="searchBar" class="form-control" value="Country Roads" required="required" placeholder="Search...">
         </div>
         <div class="form-group">
-            <select name="" id="searchType" class="form-control disabled" required="required" disabled>
-                <option value="artist" selected>Artist</option>
+            <select name="" id="searchType" class="form-control" required="required">
+                <option value="artist">Artist</option>
                 <option value="album">Album</option>
-                <option value="track">Track</option>
+                <option value="track" selected>Tracks</option>
             </select>
         </div>
         <button class="btn btn-primary"><span class="glyphicon glyphicon-search"></span> Search</button>
@@ -48,7 +54,13 @@
 <script src="/js/app.js"></script>
 <script>
     $(document).ready(() => {
-        app.fetchTemplates();
+        app.fetchTemplates().then(() => {
+            console.log("All templates loaded")
+            app.checkToken();
+        }, (err) => {
+            alert("Failed to fetch templates, all is borked.")
+            return;
+        });
         // Send login request
         $("#loginBtn").on('click', (e) => {
             e.preventDefault();
@@ -71,8 +83,6 @@
         $(document).on('click', ".track-play", function(e) {
             app.playTrack($(this).attr("data-url"), $(this).attr('data-id'))
         });
-
-        app.checkToken();
     })
 </script>
 

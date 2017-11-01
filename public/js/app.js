@@ -1,5 +1,7 @@
 "use strict";
 
+const BASE_URL = 'https://api.spotify.com/';
+
 var app = {
     accessToken: null,
     templates: {},
@@ -11,23 +13,20 @@ var app = {
         id: ""
     },
     fetchTemplates() {
-        $.get("/templates/userProfile.html").then((res) => {
-            this.templates['userProfile'] = res;
-        }).catch((e) => {
-            console.log("Failed to fetch template file user")
-        })
-
-        $.get("/templates/artistProfile.html").then((res) => {
-            this.templates['artistProfile'] = res;
-        }).catch((e) => {
-            console.log("Failed to fetch template file artist")
-        })
-
-        $.get("/templates/gallery.html").then((res) => {
-            this.templates['gallery'] = res;
-        }).catch((e) => {
-            console.log("Failed to fetch template file gallery")
-        })
+        return new Promise((resolve, reject) => {
+            Promise.all([$.get("/templates/userProfile.html"), $.get("/templates/artistProfile.html"), $.get("/templates/gallery.html")])
+            .then((results) => {
+                this.templates['userProfile'] = results[0];
+                this.templates['artistProfile'] = results[1];
+                $("body").append(results[2])
+                this.templates['gallery'] = $("#tpl_gallery").html();
+                this.templates['album'] = $("#tpl_album").html();
+                resolve()
+            }, (e) => {
+                console.log("Failed to fetch templates")
+                reject(e)
+            });
+        });
     },
     tryRefreshToken() {
         $.get("/refresh_token").then((res) => {
@@ -56,7 +55,7 @@ var app = {
                 profilePic: res.images[0].url
             }
             var output = Mustache.render(this.templates['userProfile'], params);
-            $("#response").html(output);
+            $("div.jumbotron > div.container").append(output);
             $("#searchForm").show();
             // $("#response").text(JSON.stringify(res, null, 2))
         }).catch((e) => {
@@ -99,6 +98,7 @@ var app = {
         $("#artistProfile").html(output);
     },
     renderGallery() {
+        console.log("Tracks", this.tracks)
         let params = [];
         for (let track of this.tracks) {
             params.push({
@@ -111,11 +111,59 @@ var app = {
         let output = Mustache.render(this.templates['gallery'], {tracks: params} );
         $("#gallery").html(output);
     },
+    renderAlbum(album) {
+        var output = Mustache.render(this.templates['album'], album)
+        $("#artistProfile").html(output);
+    },
+    artistSearchResult(json, myOptions) {
+        if (!json.artists) throw Error(`Artist not found.`)
+        const artist = json.artists.items[0];
+        if (artist.images.length === 0) {
+            throw Error("No artist results, please try another search.")
+        }
+        // console.log(artist)
+        this.artist = artist;
+        this.renderArtistProfile()
+        let albumsUrl = `${BASE_URL}v1/artists/${artist.id}/top-tracks?country=US`
+        return fetch(albumsUrl, myOptions).
+            then(response => response.json())
+            .then(json => {
+                const { tracks } = json;
+                this.tracks = tracks;
+                this.renderGallery()
+        })
+    },
+    albumSearchResult(json, myOptions) {
+        // console.log(json)
+        if (!json.albums) throw Error(`Album not found.`)
+        const album = json.albums.items[0];
+        if (album.images.length === 0) {
+            throw Error("No album results, please try another search.")
+        }
+        this.renderAlbum(album)
+
+        let tracksUrl = `${BASE_URL}v1/albums/${album.id}`
+        return fetch(tracksUrl, myOptions).
+            then(response => response.json())
+            .then(json => {
+                this.tracks = json.tracks.items;
+                for (let tracky of this.tracks) {
+                    tracky.album = album;
+                }
+                this.renderGallery()
+        })
+    },
+    trackSearchResult(json) {
+        if (!json.tracks) throw Error(`Track(s) not found.`)
+        this.tracks = json.tracks.items;
+        return this.renderGallery()
+    },
     searchSpotify(value, type) {
-        const BASE_URL = 'https://api.spotify.com/';
         const searchValue = encodeURIComponent(value);
-        const FETCH_URL = `${BASE_URL}v1/search?q=${searchValue}&type=${type}&limit=1`;
-        const ALBUM_URL = `${BASE_URL}v1/artists/`;
+        let FETCH_URL = `${BASE_URL}v1/search?q=${searchValue}&type=${type}`;
+        if (type !== "track") {
+            FETCH_URL += "&limit=1";
+        }
 
         var myOptions = {
             method: 'GET',
@@ -129,23 +177,13 @@ var app = {
         fetch(FETCH_URL, myOptions)
             .then(response => response.json())
             .then(json => {
-                if (!json.artists) throw Error(`Artist ${value} not found.`)
-                const artist = json.artists.items[0];
-                if (artist.images.length === 0) {
-                    throw Error("No artist results, please try another search.")
+                if (type === "artist") {
+                    return this.artistSearchResult(json, myOptions);
+                } else if (type === "album") {
+                    return this.albumSearchResult(json, myOptions);
+                } else if (type === "track") {
+                    return this.trackSearchResult(json);
                 }
-                // console.log(artist)
-                this.artist = artist;
-                this.renderArtistProfile()
-                let albumsUrl = `${BASE_URL}v1/artists/${artist.id}/top-tracks?country=US`
-                return fetch(albumsUrl, myOptions)
-            })
-            .then(response => response.json())
-            .then(json => {
-                const { tracks } = json;
-                this.tracks = tracks;
-                // console.log("Tracks", this.tracks)
-                this.renderGallery()
             })
             .catch((e) => {
                 alert("Problem: " + e.message)
