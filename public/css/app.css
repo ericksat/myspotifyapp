@@ -15,9 +15,12 @@ div.jumbotron > div.container {
 
 .user-box {
     display: flex;
-    position: absolute;
-    top: 2em;
-    right: 0;
+}
+
+@media (min-width: 768px) {
+    .user-box {
+        padding-top: 3rem;
+    }
 }
 
 .user-image img {
